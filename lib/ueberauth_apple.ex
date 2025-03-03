@@ -5,7 +5,7 @@ defmodule UeberauthApple do
   def id_token_payload(id_token) do
     with keys <- fetch_public_keys(),
          key <- get_appropriate_key(keys, id_token),
-         {true, %JOSE.JWT{fields: fields}, _JWS} <- JOSE.JWT.verify(key, id_token) do
+         {true, %{fields: fields}, _JWS} <- JOSE.JWT.verify(key, id_token) do
       fields
     end
   end
@@ -19,7 +19,7 @@ defmodule UeberauthApple do
 
   defp get_appropriate_key(keys, id_token) do
     # Extracts the Key ID (kid) from JWT headers
-    %JOSE.JWS{fields: %{"kid" => kid}} = JOSE.JWT.peek_protected(id_token)
+    %{fields: %{"kid" => kid}} = JOSE.JWT.peek_protected(id_token)
 
     # Select the public key corresponding to the right kid
     Enum.find(keys, fn x -> x["kid"] == kid end)
